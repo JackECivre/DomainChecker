@@ -1,19 +1,14 @@
 import requests
 import time
-from plyer import notification
+import win32api
+import threading
 
 
-def hourly_checker(function):
+def alert(title):
     try:
-        while True:
-            function
-            print("+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+")
-            print(" + Check Complete\n + 1 hour to check.")
-            time.sleep(1800)
-            print(" + 30 minutes to check.")
-            time.sleep(1800)
+        win32api.MessageBox(0, f"{title}", 'Problem with website', 0x00001000)
     except Exception as error:
-        print(" - Scheduler error: " + str(error))
+        print(" - Alert Error: \n - " + str(error))
 
 
 def domain_checker():
@@ -39,6 +34,9 @@ def domain_checker():
             print(result)
             if result.status_code != 200:
                 print(" ! PROBLEM WITH DOMAIN " + str(url))
+                t = threading.Thread(target=alert(url))
+                t.start()
+                t.join()
             else:
                 print(" + All Good")
 
@@ -47,4 +45,21 @@ def domain_checker():
             print(" - Problem: " + str(error))
 
 
-hourly_checker(domain_checker())
+def hourly_checker(foo):
+    try:
+        print("+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+")
+        foo
+        print(" + Check Complete\n + 1 hour to check.")
+        time.sleep(900)
+        print(" + 45 minutes to check.")
+        time.sleep(900)
+        print(" + 30 minutes to check.")
+        time.sleep(900)
+        print(" + 15 minutes to check.")
+        time.sleep(900)
+    except Exception as error:
+        print(" - Scheduler error: " + str(error))
+
+
+while True:
+    hourly_checker(domain_checker())

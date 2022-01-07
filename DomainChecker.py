@@ -32,7 +32,9 @@ def domain_checker():
             print(" + Checking Url: " + str(url))
             result = requests.get(url)
             print(result)
-            if result.status_code != 200:
+            if result.status_code == 403:
+                print(" + All Good")
+            elif result.status_code != 200:
                 print(" ! PROBLEM WITH DOMAIN " + str(url))
                 t = threading.Thread(target=alert(url))
                 t.start()

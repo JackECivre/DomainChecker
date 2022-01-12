@@ -4,9 +4,11 @@ import win32api
 import threading
 
 
-def alert(title):
+def alert(title, alert_on):
     try:
-        win32api.MessageBox(0, f"{title}", 'Problem with website', 0x00001000)
+        while alert_on:
+            win32api.MessageBox(0, f"{title}", 'Problem with website', 0x00001000)
+            alert_on = False
     except Exception as error:
         print(" - Alert Error: \n - " + str(error))
 
@@ -32,18 +34,30 @@ def domain_checker():
             print(" + Checking Url: " + str(url))
             result = requests.get(url)
             print(result)
-            if result.status_code == 403:
-                print(" + All Good")
-            elif result.status_code != 200:
-                print(" ! PROBLEM WITH DOMAIN " + str(url))
-                t = threading.Thread(target=alert(url))
-                t.start()
-                t.join()
+
+            if result.status_code != 200:
+                if result.status_code == 403:
+                    print(" + All Good")
+                    print("++++++++++")
+                else:
+                    try:
+                        print(" ! PROBLEM WITH DOMAIN " + str(url))
+                        t1 = threading.Thread(target=alert(url, alert_on=True))
+                        t1.start()
+                        print("Alert Successful")
+                        t1.join()
+                    except Exception as error:
+                        print("Alert Error: " + str(error))
             else:
                 print(" + All Good")
+                print("++++++++++")
 
         except Exception as error:
             print(" - Problem on Domain: " + str(url))
+            t1 = threading.Thread(target=alert(url, alert_on=True))
+            t1.start()
+            print("Alert Successful")
+            t1.join()
             print(" - Problem: " + str(error))
 
 
@@ -62,6 +76,6 @@ def hourly_checker(foo):
     except Exception as error:
         print(" - Scheduler error: " + str(error))
 
-
-while True:
-    hourly_checker(domain_checker())
+if __name__ == "__main__":
+    while True:
+        hourly_checker(domain_checker())
